@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace nsimpleeventstore
 {
-    public class Eventstore : IEventStore
+    public class Eventstore : IEventstore
     {
         private const string DEFAUL_PATH = "eventstore.db";
         private const int LOCK_ACQUISITION_TIMEOUT_MS = 5000;
@@ -29,7 +29,7 @@ namespace nsimpleeventstore
             _lock.AcquireWriterLock(LOCK_ACQUISITION_TIMEOUT_MS);
             try {
                 var n = _repo.Count;
-                events.ToList().ForEach(e => _repo.TryStore(n++, e));
+                events.ToList().ForEach(e => _repo.Store(n++, e));
                 OnRecorded(n, events);
 
                 return n;

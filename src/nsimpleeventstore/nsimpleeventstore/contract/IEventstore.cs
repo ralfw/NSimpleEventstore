@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace nsimpleeventstore
 {
-    public interface IEventStore : IDisposable
+    public interface IEventstore : IDisposable
     {
         event Action<long,Event[]> OnRecorded;
         

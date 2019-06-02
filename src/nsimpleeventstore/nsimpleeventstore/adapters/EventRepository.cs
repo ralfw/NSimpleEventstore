@@ -21,19 +21,18 @@ namespace nsimpleeventstore
         }
         
         
-        public bool TryStore(long index, Event e) {
+        public void Store(long index, Event e) {
             var text = EventSerialization.Serialize(e);
-            return TryStore(index, text);
+            Store(index, text);
         }
 
-        private bool TryStore(long index, string text) {
-            if (index < 0) return false;
+        private void Store(long index, string text) {
+            if (index < 0) throw new InvalidOperationException("Event index must be >= 0!");
             
             var filepath = FilepathFor(index);
-            if (File.Exists(filepath)) return false;
+            if (File.Exists(filepath)) throw new InvalidOperationException($"Event with index {index} has already been stored and cannot be overwritten!");
             
             File.WriteAllText(filepath, text);
-            return true;
         }
 
         

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Xunit;
 
@@ -26,9 +27,9 @@ namespace nsimpleeventstore.tests
             const string PATH = "counting_events";
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
             using (var sut = new EventRepository(PATH)) {
-                sut.TryStore(0, new TestEvent());
+                sut.Store(0, new TestEvent());
                 Assert.Equal(1, sut.Count);
-                sut.TryStore(1, new TestEvent());
+                sut.Store(1, new TestEvent());
                 Assert.Equal(2, sut.Count);
             }
         }
@@ -38,9 +39,7 @@ namespace nsimpleeventstore.tests
             const string PATH = "index_geq_0";
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
             using (var sut = new EventRepository(PATH)) {
-                var result = sut.TryStore(-1, new TestEvent());
-
-                Assert.False(result);
+                Assert.Throws<InvalidOperationException>(() => sut.Store(-1, new TestEvent()));
                 Assert.Equal(0, sut.Count);
             }
         }
@@ -51,11 +50,9 @@ namespace nsimpleeventstore.tests
             const string PATH = "store_once";
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
             using (var sut = new EventRepository(PATH)) {
-                Assert.True(sut.TryStore(0, new TestEvent()));
+                sut.Store(0, new TestEvent());
 
-                var result = sut.TryStore(0, new TestEvent());
-
-                Assert.False(result);
+                Assert.Throws<InvalidOperationException>(() => sut.Store(0, new TestEvent()));
                 Assert.Equal(1, sut.Count);
             }
         }
@@ -67,7 +64,7 @@ namespace nsimpleeventstore.tests
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
             using (var sut = new EventRepository(PATH)) {
                 var e = new TestEvent {Foo = "Hello"};
-                sut.TryStore(0, e);
+                sut.Store(0, e);
 
                 var result = (TestEvent) sut.Load(0);
 
