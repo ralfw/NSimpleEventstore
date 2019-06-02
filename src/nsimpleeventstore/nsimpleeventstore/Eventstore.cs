@@ -1,66 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace nsimpleeventstore
 {
-    public class EventStore : IEventStore
+    public class Eventstore : IEventStore
     {
-        private readonly string _path;
-
-        public event Action<Event[]> OnRecorded = _ => { };
+        private const string DEFAUL_PATH = "eventstore.db";
+        private const int LOCK_ACQUISITION_TIMEOUT_MS = 5000;
         
-        public EventStore(string path) {
-            _path = path;
-            if (Directory.Exists(_path) is false)
-                Directory.CreateDirectory(_path);
+        public event Action<long, Event[]> OnRecorded = (t,es) => { };
+
+        
+        private readonly ReaderWriterLock _lock;
+        private readonly EventRepository _repo;
+        
+        
+        public Eventstore() : this(DEFAUL_PATH) {}
+        public Eventstore(string path) {
+            _repo = new EventRepository(path);
+            _lock = new ReaderWriterLock();
         }
 
         
-        public void Record(Event e) => Record(new[] {e});
-        public void Record(Event[] events) {
-            var index = Directory.GetFiles(_path).Length;
-            events.ToList().ForEach(e => Store(e, ++index));
-            OnRecorded(events);
+        public long Record(Event e) => Record(new[] {e});
+        public long Record(Event[] events) {
+            _lock.AcquireWriterLock(LOCK_ACQUISITION_TIMEOUT_MS);
+            try {
+                var n = _repo.Count;
+                events.ToList().ForEach(e => _repo.TryStore(n++, e));
+                OnRecorded(n, events);
+
+                return n;
+            }
+            finally {
+                _lock.ReleaseWriterLock();
+            }
         }
 
 
-        public IEnumerable<Event> Replay()
-            => Directory.GetFiles(_path, "*.txt").Select(Load);
-
+        public IEnumerable<Event> Replay() => Replay(new Type[0]);
         public IEnumerable<Event> Replay(params Type[] eventTypes) {
-            var eventTypes_ = new HashSet<Type>(eventTypes);
-            return Replay().Where(e => eventTypes_.Contains(e.GetType()));
+            _lock.AcquireReaderLock(LOCK_ACQUISITION_TIMEOUT_MS);
+            try {
+                return Filter(AllEvents());
+            }
+            finally  {
+                _lock.ReleaseReaderLock();
+            }
+
+
+            IEnumerable<Event> AllEvents() {
+                var n = _repo.Count;
+                for (long i = 0; i < n; i++)
+                    yield return _repo.Load(i);
+            }
+
+            IEnumerable<Event> Filter(IEnumerable<Event> events) {
+                if (eventTypes.Length > 0) {
+                    var eventTypes_ = new HashSet<Type>(eventTypes);
+                    events = events.Where(e => eventTypes_.Contains(e.GetType()));
+                }
+                return events;
+            }
         }
 
-        
-        private void Store(Event e, long index) {
-            var text = EventSerialization.Serialize(e);
-            Write(text, index);
-        }
-        
-        private void Write(string e, long index) {
-            var filepath = Path.Combine(_path, $"{index:x8}.txt");
-            File.WriteAllText(filepath, e);
-        }
-        
-        
-        private Event Load(string filename) {
-            var text = File.ReadAllText(filename);
-            return EventSerialization.Deserialize(text);
-        }
 
-        
-        public void Dispose(){}
-    }
-    
-    public interface IEventStore : IDisposable
-    {
-        event Action<Event[]> OnRecorded;
-        void Record(Event e);
-        void Record(Event[] events);
-        IEnumerable<Event> Replay();
-        IEnumerable<Event> Replay(params Type[] eventTypes);
+        public void Dispose() { _repo.Dispose(); }
     }
 }
