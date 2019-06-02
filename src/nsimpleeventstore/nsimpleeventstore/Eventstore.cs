@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 
@@ -24,27 +25,36 @@ namespace nsimpleeventstore
         }
 
         
-        public long Record(Event e) => Record(new[] {e});
-        public long Record(Event[] events) {
+        public long Record(Event e, long version=-1) => Record(new[] {e}, version);
+        public long Record(Event[] events, long version=-1) {
             _lock.AcquireWriterLock(LOCK_ACQUISITION_TIMEOUT_MS);
             try {
                 var n = _repo.Count;
-                events.ToList().ForEach(e => _repo.Store(n++, e));
-                OnRecorded(n, events);
+                Check_for_version_conflict(n);
+                Store_all_events(n);
+                OnRecorded(n+events.Length, events);
 
                 return n;
             }
             finally {
                 _lock.ReleaseWriterLock();
             }
+
+
+            void Check_for_version_conflict(long currentVersion) {
+                if (version >= 0 && version != currentVersion) throw new VersionNotFoundException($"Event store version conflict! Version {version} expected, but is {currentVersion}!");
+            }
+
+            void Store_all_events(long index) => events.ToList().ForEach(e => _repo.Store(index++, e));
         }
 
 
-        public IEnumerable<Event> Replay() => Replay(new Type[0]);
-        public IEnumerable<Event> Replay(params Type[] eventTypes) {
+        public (Event[] Events, long Version) Replay() => Replay(new Type[0]);
+        public (Event[] Events, long Version) Replay(params Type[] eventTypes) {
             _lock.AcquireReaderLock(LOCK_ACQUISITION_TIMEOUT_MS);
             try {
-                return Filter(AllEvents());
+                return (Filter(AllEvents()).ToArray(),
+                        _repo.Count);
             }
             finally  {
                 _lock.ReleaseReaderLock();

@@ -7,10 +7,10 @@ namespace nsimpleeventstore
     {
         event Action<long,Event[]> OnRecorded;
         
-        long Record(Event e);
-        long Record(Event[] events);
+        long Record(Event e, long version=-1);
+        long Record(Event[] events, long version=-1);
         
-        IEnumerable<Event> Replay();
-        IEnumerable<Event> Replay(params Type[] eventTypes);
+        (Event[] Events, long Version) Replay();
+        (Event[] Events, long Version) Replay(params Type[] eventTypes);
     }
 }
