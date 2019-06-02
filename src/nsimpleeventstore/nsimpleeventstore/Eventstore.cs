@@ -63,7 +63,7 @@ namespace nsimpleeventstore
                 currentVersion = n.ToString();
                 
                 OnRecorded((currentVersion, n-1, events));
-                return (currentVersion, n + events.Length);
+                return (currentVersion, n-1);
             } finally{}
 
 
@@ -76,12 +76,13 @@ namespace nsimpleeventstore
         }
 
 
-        public (Event[] Events, string Version) Replay(long firstEventNumber=-1) => Replay(firstEventNumber, new Type[0]);
-        public (Event[] Events, string Version) Replay(long firstEventNumber=-1, params Type[] eventTypes)
+        public (string Version, Event[] Events) Replay(long firstEventNumber=-1) => Replay(firstEventNumber, new Type[0]);
+        public (string Version, Event[] Events) Replay(params Type[] eventTypes) => Replay(-1, eventTypes);
+        public (string Version, Event[] Events) Replay(long firstEventNumber=-1, params Type[] eventTypes)
         {
             return _lock.TryRead(
-                () => (Filter(AllEvents()).ToArray(),
-                       _repo.Count.ToString()));
+                () => (_repo.Count.ToString(),
+                       Filter(AllEvents()).ToArray()));
 
 
             IEnumerable<Event> AllEvents() {

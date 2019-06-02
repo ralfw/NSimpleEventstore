@@ -10,7 +10,8 @@ namespace nsimpleeventstore
         (string Version, long FinalEventNumber) Record(Event e, string expectedVersion="");
         (string Version, long FinalEventNumber) Record(Event[] events, string expectedVersion="");
         
-        (Event[] Events, string Version) Replay(long firstEventNumber=-1);
-        (Event[] Events, string Version) Replay(long firstEventNumber=-1, params Type[] eventTypes);
+        (string Version, Event[] Events) Replay(long firstEventNumber=-1);
+        (string Version, Event[] Events) Replay(params Type[] eventTypes);
+        (string Version, Event[] Events) Replay(long firstEventNumber, params Type[] eventTypes);
     }
 }
