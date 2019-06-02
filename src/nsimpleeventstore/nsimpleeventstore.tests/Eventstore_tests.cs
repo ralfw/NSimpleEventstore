@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -161,8 +162,36 @@ namespace nsimpleeventstore.tests
                 Assert.Empty(result.Events);
             }
         }
+
+
+        [Fact]
+        public void Recording_succeeds_with_right_version()
+        {
+            const string PATH = nameof(Eventstore_tests) + "_" + nameof(Recording_succeeds_with_right_version);
+            if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
+            var sut = new Eventstore(PATH);
+
+            var state0 = sut.State;
+            var result = sut.Record(new TestEvent{Foo = "a"});
+            
+            Assert.NotEqual(state0.Version,  result.Version);
+            var result2 = sut.Record(new AnotherTestEvent {Bar = 1}, result.Version);
+
+            Assert.NotEqual(result.Version, result2.Version);
+        }
         
-        
-        
+        [Fact]
+        public void Recording_fails_with_wrong_version()
+        {
+            const string PATH = nameof(Eventstore_tests) + "_" + nameof(Recording_fails_with_wrong_version);
+            if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
+            var sut = new Eventstore(PATH);
+
+            var state0 = sut.State;
+            var result = sut.Record(new TestEvent{Foo = "a"});
+            Assert.NotEqual(state0.Version,  result.Version);
+            
+            Assert.Throws<VersionNotFoundException>(() =>  sut.Record(new AnotherTestEvent {Bar = 1}, state0.Version));
+        }
     }
 }

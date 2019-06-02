@@ -43,9 +43,11 @@ namespace nsimpleeventstore
 
 
         public long Count => Directory.GetFiles(_path).Length;
+
+        public string Path => _path;
         
         
-        private string FilepathFor(long index) => Path.Combine(_path, $"{index:x16}.txt");
+        private string FilepathFor(long index) => System.IO.Path.Combine(_path, $"{index:x16}.txt");
 
         
         public void Dispose() { }

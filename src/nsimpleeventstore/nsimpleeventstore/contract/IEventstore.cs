@@ -13,5 +13,7 @@ namespace nsimpleeventstore
         (string Version, Event[] Events) Replay(long firstEventNumber=-1);
         (string Version, Event[] Events) Replay(params Type[] eventTypes);
         (string Version, Event[] Events) Replay(long firstEventNumber, params Type[] eventTypes);
+        
+        (string Version, long FinalEventNumber) State { get; }
     }
 }

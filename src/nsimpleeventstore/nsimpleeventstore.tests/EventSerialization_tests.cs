@@ -25,8 +25,8 @@ namespace nsimpleeventstore.tests
 
             var result = EventSerialization.Serialize(e).Split('\n');
             
-            Assert.True(result[0].StartsWith("nsimpleeventstore.tests.EventSerialization_tests+TestEvent"));
-            Assert.True(result[1].StartsWith("{\"Foo\":\"Hello!\",\"Id\":\""));
+            Assert.StartsWith("nsimpleeventstore.tests.EventSerialization_tests+TestEvent", result[0]);
+            Assert.StartsWith("{\"Foo\":\"Hello!\",\"Id\":\"", result[1]);
         }
 
         

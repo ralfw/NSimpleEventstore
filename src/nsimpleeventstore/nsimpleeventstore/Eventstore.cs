@@ -105,7 +105,9 @@ namespace nsimpleeventstore
                 var n = _repo.Count;
                 return (n.ToString(), n - 1);
             });
-        
+
+
+        public string Path => _repo.Path;
         
         public void Dispose() { _repo.Dispose(); }
     }
