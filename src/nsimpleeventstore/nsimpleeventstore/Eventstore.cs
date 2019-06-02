@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading;
 
 namespace nsimpleeventstore
 {
@@ -29,19 +28,19 @@ namespace nsimpleeventstore
     public class Eventstore : IEventstore
     {
         private const string DEFAUL_PATH = "eventstore.db";
-        private const int LOCK_ACQUISITION_TIMEOUT_MSEC = 5000;
-        
-        public event Action<(string Version, long NumberOfFirstEvent, Event[] Events)> OnRecorded = _ => { };
 
         
-        private readonly ReaderWriterLock _lock;
+        public event Action<(string Version, long FinalEventNumber, Event[] Events)> OnRecorded = _ => { };
+
+
+        private readonly Lock _lock;
         private readonly EventRepository _repo;
         
         
         public Eventstore() : this(DEFAUL_PATH) {}
         public Eventstore(string path) {
             _repo = new EventRepository(path);
-            _lock = new ReaderWriterLock();
+            _lock = new Lock();
         }
 
         
@@ -50,22 +49,20 @@ namespace nsimpleeventstore
             try
             {
                 string currentVersion;
-                long n;
-
-                _lock.AcquireWriterLock(LOCK_ACQUISITION_TIMEOUT_MSEC);
-                try {
+                long n = 0;
+                
+                _lock.TryWrite(() => {
                     n = _repo.Count;
                     currentVersion = n.ToString();
 
                     Check_for_version_conflict(currentVersion);
                     Store_all_events(n);
-                }
-                finally  {
-                    _lock.ReleaseWriterLock();
-                }
+                });
 
-                currentVersion = n + events.Length.ToString();
-                OnRecorded((currentVersion, n, events));
+                n += events.Length;
+                currentVersion = n.ToString();
+                
+                OnRecorded((currentVersion, n-1, events));
                 return (currentVersion, n + events.Length);
             } finally{}
 
@@ -80,15 +77,11 @@ namespace nsimpleeventstore
 
 
         public (Event[] Events, string Version) Replay(long firstEventNumber=-1) => Replay(firstEventNumber, new Type[0]);
-        public (Event[] Events, string Version) Replay(long firstEventNumber=-1, params Type[] eventTypes) {
-            _lock.AcquireReaderLock(LOCK_ACQUISITION_TIMEOUT_MSEC);
-            try {
-                return (Filter(AllEvents()).ToArray(),
-                        _repo.Count.ToString());
-            }
-            finally  {
-                _lock.ReleaseReaderLock();
-            }
+        public (Event[] Events, string Version) Replay(long firstEventNumber=-1, params Type[] eventTypes)
+        {
+            return _lock.TryRead(
+                () => (Filter(AllEvents()).ToArray(),
+                       _repo.Count.ToString()));
 
 
             IEnumerable<Event> AllEvents() {
@@ -98,41 +91,21 @@ namespace nsimpleeventstore
             }
 
             IEnumerable<Event> Filter(IEnumerable<Event> events) {
-                if (eventTypes.Length > 0) {
-                    var eventTypes_ = new HashSet<Type>(eventTypes);
-                    events = events.Where(e => eventTypes_.Contains(e.GetType()));
-                }
-                return events;
+                if (eventTypes.Length <= 0) return events;
+                
+                var eventTypes_ = new HashSet<Type>(eventTypes);
+                return events.Where(e => eventTypes_.Contains(e.GetType()));
             }
         }
 
 
-        public long Count {
-            get  {
-                _lock.AcquireReaderLock(LOCK_ACQUISITION_TIMEOUT_MSEC);
-                try {
-                    return _repo.Count;
-                }
-                finally  {
-                    _lock.ReleaseReaderLock();
-                }
-            }
-        }
+        public (string Version, long FinalEventNumber) State
+            => _lock.TryRead(() =>  {
+                var n = _repo.Count;
+                return (n.ToString(), n - 1);
+            });
         
         
-        public string Version {
-            get  {
-                _lock.AcquireReaderLock(LOCK_ACQUISITION_TIMEOUT_MSEC);
-                try {
-                    return _repo.Count.ToString();
-                }
-                finally  {
-                    _lock.ReleaseReaderLock();
-                }
-            }
-        }
-
-
         public void Dispose() { _repo.Dispose(); }
     }
 }
