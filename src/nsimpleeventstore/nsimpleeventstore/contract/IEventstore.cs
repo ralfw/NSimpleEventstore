@@ -5,12 +5,12 @@ namespace nsimpleeventstore
 {
     public interface IEventstore : IDisposable
     {
-        event Action<long,Event[]> OnRecorded;
+        event Action<(string Version, long NumberOfFirstEvent, Event[] Events)> OnRecorded;
         
-        long Record(Event e, long version=-1);
-        long Record(Event[] events, long version=-1);
+        (string Version, long FinalEventNumber) Record(Event e, string expectedVersion="");
+        (string Version, long FinalEventNumber) Record(Event[] events, string expectedVersion="");
         
-        (Event[] Events, long Version) Replay();
-        (Event[] Events, long Version) Replay(params Type[] eventTypes);
+        (Event[] Events, string Version) Replay(long firstEventNumber=-1);
+        (Event[] Events, string Version) Replay(long firstEventNumber=-1, params Type[] eventTypes);
     }
 }
