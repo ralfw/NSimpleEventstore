@@ -25,7 +25,7 @@ namespace nsimpleeventstore
      * simplicity of the persistence approach it is assumed that failure during writing the events to files
      * is very unlikely.
      */
-    public class Eventstore : IEventstore
+    public class FilebasedEventstore : IEventstore
     {
         private const string DEFAUL_PATH = "eventstore.db";
 
@@ -37,8 +37,8 @@ namespace nsimpleeventstore
         private readonly EventRepository _repo;
         
         
-        public Eventstore() : this(DEFAUL_PATH) {}
-        public Eventstore(string path) {
+        public FilebasedEventstore() : this(DEFAUL_PATH) {}
+        public FilebasedEventstore(string path) {
             _repo = new EventRepository(path);
             _lock = new Lock();
         }

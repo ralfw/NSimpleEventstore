@@ -15,7 +15,7 @@ namespace nsimpleeventstore.tests
         public void Run() {
             const string PATH =  nameof(Eventstore_scenario_tests) + "_" + nameof(Run);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            using (var sut = new Eventstore(PATH))
+            using (var sut = new FilebasedEventstore(PATH))
             {
                 Event e0 = new TodoAdded("do dishes");
                 sut.Record(e0);
