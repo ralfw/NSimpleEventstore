@@ -1,7 +1,7 @@
 # NSimpleEventstore
 A very simple event store for the unassuming .NET developer.
 
-If you want to play around with Event Sourcing you can easily get scared by professional tools like [NEventStore](http://neventstore.org/) or Event Store (https://eventstore.org/). They are so powerful - but at the beginning that might be a drawback.
+If you want to play around with Event Sourcing you can easily get scared by professional tools like [NEventStore](http://neventstore.org/) or [Event Store](https://eventstore.org/). They are so powerful - but at the beginning that might be a drawback.
 
 To just get a feeling for how persisting events differs from persisting big data models you don't want to install servers or dive deep into comprehensive frameworks.
 
