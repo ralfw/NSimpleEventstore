@@ -49,7 +49,7 @@ foreach(var e in events)
 
 That's about it. Really. An event store is not that complicated. Hence it should not be complicated to use it. At least for your first experiments. The real challenge is in changing your mindset. And that should not be impeded by a technology. "Thinking in events" is quite different from "thinking in (single) data models".
 
-## Replaying Contexts Events
+## Replaying Context Events
 In most situations you don't want to replay all events when aggregating some information from the ever changing event stream. You want to focus on subsets of events which I call *context events*.
 
 Context events are a list of events relevant in - well - a certain context, e.g. handling a command or a query. To replay just the context events you need you can filter the event stream in two ways:
