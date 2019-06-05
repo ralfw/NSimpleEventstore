@@ -109,6 +109,7 @@ namespace nsimpleeventstore
 
         public string Path => _repo.Path;
         
+        
         public void Dispose() { _repo.Dispose(); }
     }
 }
