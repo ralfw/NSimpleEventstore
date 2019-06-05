@@ -49,7 +49,7 @@ foreach(var e in events)
 
 That's about it. Really. An event store is not that complicated. Hence it should not be complicated to use it. At least for your first experiments. The real challenge is in changing your mindset. And that should not be impeded by a technology. "Thinking in events" is quite different from "thinking in (single) data models".
 
-## Replaying Contexts
+## Replaying Contexts Events
 In most situations you don't want to replay all events when aggregating some information from the ever changing event stream. You want to focus on subsets of events which I call *context events*.
 
 Context events are a list of events relevant in - well - a certain context, e.g. handling a command or a query. To replay just the context events you need you can filter the event stream in two ways:
@@ -63,7 +63,7 @@ Assume you have recorded these events:
 es.Record(new Event[]{new A(), new B(), new A(), new C(), new B(), new A()});
 ```
 
-Then you can replay the events for a context like this:
+Then you can replay the events for a context concerned only with events `A` and `C` like this:
 
 ```
 es.Replay(typeof(A), typeof(C))
@@ -80,4 +80,20 @@ es.Replay(457);
 
 Events are numbered in the order the are recorded starting with 0.
 
+Of course you can combine event types and event number when replaying, e.g. `es.Replay(5, typeof(B), typeof(C))`.
+
 ## Optimistic Concurrency
+The event store implementations of NSimpleEventstore are thread safe. That means you can use them from multiple threads consurrently. Events recorded by thread 1 will first be written to disk before events from thread 2 will be written. Events from different threads never interleave.
+
+Still, though, the result might be unexpected if the events threads 2 produces depend on the overall content of the event stream. And if thread 2 was working on stale data since thread 1 has appended more events in the meantime... then an inconsistency could result.
+
+To avoid this the event store implementations allow for optimistic concurrency: The event store is versioned. Whenever its state changes (i.e. new events get recorded) the version changes, too. That's why replaying events does not just deliver a list of events, but an object with an `Events` property. This object also carries the current version of the event store:
+
+```
+es.Replay().Version
+```
+
+The version is an opaque string. Don't look at it, to assume it to be of any special format or content. There is not even an order in how version numbers get created. Its only property you can rely on is that it changes whenever the event stream changes.
+
+
+
