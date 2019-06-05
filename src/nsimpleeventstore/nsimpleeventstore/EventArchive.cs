@@ -7,7 +7,7 @@ namespace nsimpleeventstore
 {
     /*
      * An event archive contains a collection of events in a single file.
-     * The archive can only be written and read at once. No access to individual events in the
+     * The archive can only be written and read at once. No access to individual events inside the
      * archive is possible.
      *
      * The order of events is retained in the archive.
