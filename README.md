@@ -69,9 +69,15 @@ Then you can replay the events for a context like this:
 es.Replay(typeof(A), typeof(C))
 ```
 
-which will result in a subset of 4 events (3xA, 1xC).
+which will result in a subset of 4 events (A,A,C,A). Of course the original order of events is retained.
 
 ### Selection by Event Number
+Or you want to replay all events - but starting from a certain event, not from the beginning of the event stream. Maybe you know that a certain aggregation already assimilated events 0..456. To update it you'd only need the events from 457 on:
 
+```
+es.Replay(457);
+```
+
+Events are numbered in the order the are recorded starting with 0.
 
 ## Optimistic Concurrency
