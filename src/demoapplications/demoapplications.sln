@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "todomanager", "todomanager\todomanager.csproj", "{C26FE551-1032-4E87-9992-677791A4CF82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "firststeps", "firststeps\firststeps.csproj", "{18FC60BE-EDB9-42E4-8CA3-AB16A3373022}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{C26FE551-1032-4E87-9992-677791A4CF82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C26FE551-1032-4E87-9992-677791A4CF82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C26FE551-1032-4E87-9992-677791A4CF82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18FC60BE-EDB9-42E4-8CA3-AB16A3373022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18FC60BE-EDB9-42E4-8CA3-AB16A3373022}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18FC60BE-EDB9-42E4-8CA3-AB16A3373022}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18FC60BE-EDB9-42E4-8CA3-AB16A3373022}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
