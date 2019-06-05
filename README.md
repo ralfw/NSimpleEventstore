@@ -10,7 +10,7 @@ Enter NSimlpeEventStore: It makes it trivial to record events, replay events, an
 ## First Steps
 
 1. Create a .NET console project
-2. Add the NSimpleEvenstore Nuget package
+2. Add the [NSimpleEvenstore NuGet package](https://www.nuget.org/packages/NSimpleEventStore/)
 
 Now, define a first event. All event classes need to derive from `nsimpleeventstore.Event`:
 
