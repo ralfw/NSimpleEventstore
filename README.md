@@ -124,11 +124,32 @@ To what happens otherwise let's provoke a situation where optimism will be disap
 ```
 var state = es.Record(new A());
 
-es.Record(new C());
+es.Record(new C()); // leads to a change of the event stream version
 
-es.Record(new B(), state.Version); // uses outdated version number
+es.Record(new B(), state.Version); // uses outdated version
 ```
 
 Recording event `C` changed the version number of the event stream. Recording `B` thus has an wrong expectation and fails with a `VersionNotFoundException`. Bummer.
 
 What to do in such situations is up to you. Maybe re-replaying a context stream, generating some events anew, and trying to record them will do. Maybe some more severe measures have to be taken.
+
+## Archiving Events
+When using the `InMemoryEventstore` you want to avoid the overhead of (de)persisting events all the time. But still you might also want to remember some or all events which got recorded. What you then can do is create an event archive:
+
+```
+var es = new InMemoryEventstore();
+...
+EventArchive.Write("myarchive.json", es.Replay().Events);
+```
+
+Just replay all events and get them written to a single file. (In contrast the `FilebasedEventstore` uses an individual file for each event.)
+
+You also can think of the archive of some kind of event stream snapshot, be in complete or just of a context stream.
+
+To re-hydrate the events and use them in an `InMemoryEventstore` just do the reverse:
+
+```
+var events = EventArchive.Read("myarchive.json");
+
+var es = new InMemoryEventstore(events);
+```
