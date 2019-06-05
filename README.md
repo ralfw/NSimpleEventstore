@@ -153,3 +153,12 @@ var events = EventArchive.Read("myarchive.json");
 
 var es = new InMemoryEventstore(events);
 ```
+
+## Summary
+NSimpleEventstore has one goal: make it simple to get your feet wet with Event Sourcing (if you're a .NET programmer). Don't expect fancy features or industrial grade performance or the like. But that's a start, I'd say.
+
+I hope you find that it's living up to this goal. 
+
+If yes, great! Spread the word.
+
+If no... well, it's an open source project. Feel free to create a PR 😉 or at least an issue.
