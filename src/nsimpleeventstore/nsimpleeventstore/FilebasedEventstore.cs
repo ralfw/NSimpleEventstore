@@ -30,7 +30,7 @@ namespace nsimpleeventstore
         private const string DEFAUL_PATH = "eventstore.db";
 
         
-        public event Action<(string Version, long FinalEventNumber, Event[] Events)> OnRecorded = _ => { };
+        public event Action<string, long, Event[]> OnRecorded = (v,f,e) => { };
 
 
         private readonly Lock _lock;
@@ -62,7 +62,7 @@ namespace nsimpleeventstore
                 n += events.Length;
                 currentVersion = n.ToString();
                 
-                OnRecorded((currentVersion, n-1, events));
+                OnRecorded(currentVersion, n-1, events);
                 return (currentVersion, n-1);
             } finally{}
 

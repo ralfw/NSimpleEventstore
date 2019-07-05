@@ -72,7 +72,7 @@ namespace nsimpleeventstore.tests
             var sut = new FilebasedEventstore(PATH);
 
             (string Version, long FinalEventNumber, Event[] Events) result = ("", -1, null);
-            sut.OnRecorded += r => result = r;
+            sut.OnRecorded += (v,f,e) => result = (v,f,e);
             var state0 = sut.State;
 
             sut.Record(new TestEvent{Foo = "a"});

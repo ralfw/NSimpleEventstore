@@ -7,7 +7,7 @@ namespace nsimpleeventstore
 {
     public class InMemoryEventstore : IEventstore
     {
-        public event Action<(string Version, long FinalEventNumber, Event[] Events)> OnRecorded = _ => { };
+        public event Action<string, long, Event[]> OnRecorded = (v,f,e) => { };
 
         private readonly Lock _lock;
         private readonly List<Event> _events;
@@ -33,7 +33,7 @@ namespace nsimpleeventstore
                 });
 
                 var (version, finalEventNumber) = State;
-                OnRecorded((version, finalEventNumber, events));
+                OnRecorded(version, finalEventNumber, events);
                 return (version, finalEventNumber);
             } finally{}
 
