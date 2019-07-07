@@ -193,5 +193,25 @@ namespace nsimpleeventstore.tests
             
             Assert.Throws<VersionNotFoundException>(() =>  sut.Record(new AnotherTestEvent {Bar = 1}, state0.Version));
         }
+        
+        [Fact]
+        public void Replay_in_the_right_order_with_many_events()
+        {
+            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Replay_in_the_right_order_with_many_events);
+            if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
+            var sut = new FilebasedEventstore(PATH);
+
+            for (var i = 0; i < 50; i++) {
+                sut.Record(new TestEvent {Foo = i.ToString()});
+            }
+
+            var result = sut.Replay();
+
+            var prev = -1;
+            foreach (var v in result.Events.Select(x => int.Parse(((TestEvent)x).Foo))) {
+                Assert.Equal(1, v-prev);
+                prev = v;
+            }
+        }
     }
 }
