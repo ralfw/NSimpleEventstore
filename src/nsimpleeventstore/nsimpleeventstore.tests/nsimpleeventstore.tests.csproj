@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\nsimpleeventstore.contract\nsimpleeventstore.contract.csproj" />
       <ProjectReference Include="..\nsimpleeventstore\nsimpleeventstore.csproj" />
     </ItemGroup>
 

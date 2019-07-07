@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+
+        <PackageId>NSimpleEventStore.Contract</PackageId>
+        <Description>Interfaces and data types for NSimpleEventStore</Description>
+        <Version>1.0.2</Version>
+        <Authors>Ralf Westphal</Authors>
+        <Company>One Man Think Tank, Hamburg</Company>
+    </PropertyGroup>
+
+</Project>

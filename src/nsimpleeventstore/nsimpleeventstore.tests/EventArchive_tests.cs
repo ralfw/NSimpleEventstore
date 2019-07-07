@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Xunit;
 
 namespace nsimpleeventstore.tests
