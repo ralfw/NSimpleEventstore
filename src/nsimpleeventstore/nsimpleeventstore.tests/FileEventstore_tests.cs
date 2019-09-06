@@ -2,11 +2,12 @@ using System;
 using System.Data;
 using System.IO;
 using System.Linq;
+using nsimpleeventstore.contract;
 using Xunit;
 
 namespace nsimpleeventstore.tests
 {
-    public class FilebasedEventstore_tests
+    public class FileEventstore_tests
     {
         class TestEvent : Event
         {
@@ -22,9 +23,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Basic_recording_and_replaying()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Basic_recording_and_replaying);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Basic_recording_and_replaying);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
 
             sut.Record(new TestEvent {Foo = "a"});
             sut.Record(new[] {new TestEvent {Foo = "b"}, new TestEvent {Foo = "c"}});
@@ -38,9 +39,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Version_number_changes()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Version_number_changes);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Version_number_changes);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
 
             var state0 = sut.State;
             Assert.True(state0.FinalEventNumber < 0);
@@ -67,9 +68,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Notification_about_events_recorded()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Notification_about_events_recorded);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Notification_about_events_recorded);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
 
             (string Version, long FinalEventNumber, Event[] Events) result = ("", -1, null);
             sut.OnRecorded += (v,f,e) => result = (v,f,e);
@@ -95,9 +96,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Replaying_a_subset()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Replaying_a_subset);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Replaying_a_subset);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
             
             sut.Record(new Event[] {
                 new TestEvent {Foo = "a"}, new AnotherTestEvent {Bar = 1},
@@ -123,9 +124,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Replaying_from_event_number()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Replaying_from_event_number);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Replaying_from_event_number);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
             
             sut.Record(new Event[] {
                 new TestEvent {Foo = "a"}, new AnotherTestEvent {Bar = 1},
@@ -167,9 +168,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Recording_succeeds_with_right_version()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Recording_succeeds_with_right_version);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Recording_succeeds_with_right_version);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
 
             var state0 = sut.State;
             var result = sut.Record(new TestEvent{Foo = "a"});
@@ -183,9 +184,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Recording_fails_with_wrong_version()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Recording_fails_with_wrong_version);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Recording_fails_with_wrong_version);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
 
             var state0 = sut.State;
             var result = sut.Record(new TestEvent{Foo = "a"});
@@ -197,9 +198,9 @@ namespace nsimpleeventstore.tests
         [Fact]
         public void Replay_in_the_right_order_with_many_events()
         {
-            const string PATH = nameof(FilebasedEventstore_tests) + "_" + nameof(Replay_in_the_right_order_with_many_events);
+            const string PATH = nameof(FileEventstore_tests) + "_" + nameof(Replay_in_the_right_order_with_many_events);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            var sut = new FilebasedEventstore(PATH);
+            var sut = new FileEventstore(PATH);
 
             for (var i = 0; i < 50; i++) {
                 sut.Record(new TestEvent {Foo = i.ToString()});

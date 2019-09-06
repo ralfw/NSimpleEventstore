@@ -1,6 +1,7 @@
 ﻿using System;
+using nsimpleeventstore.contract;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.adapters.eventrepositories
 {
     public interface IEventRepository : IDisposable
     {

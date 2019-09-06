@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using nsimpleeventstore.adapters.eventrepositories;
+using nsimpleeventstore.contract;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.adapters
 {
     /*
      * An event archive contains a collection of events in a single file.

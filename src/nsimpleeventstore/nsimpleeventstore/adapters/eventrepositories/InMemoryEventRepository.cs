@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
+using nsimpleeventstore.contract;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.adapters.eventrepositories
 {
     /*
      * The event repository maintains a persistent 0-based array of events.
      * The array is write-once, i.e. an array element can only we written to/stored once.     
      */
-    public class MemoryRepository : IEventRepository
+    public class InMemoryEventRepository : IEventRepository
     {
-        private readonly string _path;
-        private Dictionary<long, Event> _directory = new Dictionary<long, Event>();
+        private readonly Dictionary<long, Event> _directory = new Dictionary<long, Event>();
         
-        public MemoryRepository(string path) {
-            _path = path; //not used
+        public InMemoryEventRepository(string path) {
+            Path = path; //not used
         }
 
         public void Store(long index, Event e) {
@@ -32,7 +32,7 @@ namespace nsimpleeventstore
 
         public long Count => _directory.Count;
 
-        public string Path => _path;
+        public string Path { get; }
 
         public void Dispose() { }
     }

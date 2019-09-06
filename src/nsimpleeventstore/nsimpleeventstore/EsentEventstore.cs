@@ -1,4 +1,6 @@
-﻿namespace nsimpleeventstore
+﻿using nsimpleeventstore.adapters.eventrepositories;
+
+namespace nsimpleeventstore
 {
     /*
      * Events are stored by expanding a persistent array incrementally per event.
@@ -11,7 +13,7 @@
      * The event store is versioned. The version number is opaque to clients; they should not expect version numbers
      * to be ordered in any way or increase over time. The version changes whenever events got recorded.
      */
-    public class EsentEventstore : Eventstore<EsentRepository>
+    public class EsentEventstore : Eventstore<EsentEventRepository>
     {
         public EsentEventstore() : base() { }
         public EsentEventstore(string path) : base(path) { }

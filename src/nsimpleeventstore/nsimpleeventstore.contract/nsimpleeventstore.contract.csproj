@@ -8,6 +8,8 @@
         <Version>1.0.2</Version>
         <Authors>Ralf Westphal</Authors>
         <Company>One Man Think Tank, Hamburg</Company>
+        <PackageVersion>2.0.0</PackageVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
 </Project>

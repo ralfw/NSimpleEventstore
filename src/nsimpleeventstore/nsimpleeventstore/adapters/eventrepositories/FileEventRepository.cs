@@ -1,7 +1,8 @@
 using System;
 using System.IO;
+using nsimpleeventstore.contract;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.adapters.eventrepositories
 {
     /*
      * The event repository maintains a persistent 0-based array of events.
@@ -10,11 +11,11 @@ namespace nsimpleeventstore
      * Events are stored in files whose name consists of their array index as a hex number, e.g. 000000000002F303.txt
      * for the array element 193283.
      */
-    public class EventRepository : IEventRepository
+    public class FileEventRepository : IEventRepository
     {
         private readonly string _path;
 
-        public EventRepository(string path) {
+        public FileEventRepository(string path) {
             _path = path;
             if (Directory.Exists(_path) is false)
                 Directory.CreateDirectory(_path);

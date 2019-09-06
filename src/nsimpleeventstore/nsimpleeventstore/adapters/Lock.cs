@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.adapters
 {
     class Lock
     {

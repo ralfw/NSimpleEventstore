@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using nsimpleeventstore.contract;
 using Xunit;
 
 namespace nsimpleeventstore.tests
@@ -15,7 +16,7 @@ namespace nsimpleeventstore.tests
         public void FilebasedEventstore_acceptance_test() {
             const string PATH =  nameof(Eventstore_scenario_tests) + "_" + nameof(FilebasedEventstore_acceptance_test);
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            using (var sut = new FilebasedEventstore(PATH))
+            using (var sut = new FileEventstore(PATH))
             {
                 Event e0 = new TodoAdded("do dishes");
                 sut.Record(e0);

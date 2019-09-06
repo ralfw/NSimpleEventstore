@@ -1,5 +1,7 @@
 using System.IO;
 using System.Linq;
+using nsimpleeventstore.adapters;
+using nsimpleeventstore.contract;
 using Xunit;
 
 namespace nsimpleeventstore.tests

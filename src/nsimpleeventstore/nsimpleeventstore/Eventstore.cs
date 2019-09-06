@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using nsimpleeventstore.adapters;
+using nsimpleeventstore.adapters.eventrepositories;
+using nsimpleeventstore.contract;
 
 namespace nsimpleeventstore
 {
@@ -25,7 +28,7 @@ namespace nsimpleeventstore
      * simplicity of the persistence approach it is assumed that failure during writing the events to files
      * is very unlikely.
      */
-    public class Eventstore<T> : IEventstore where T : IEventRepository
+    public abstract class Eventstore<T> : IEventstore where T : IEventRepository
     {
         private const string DEFAUL_PATH = "eventstore.db";
         
@@ -34,8 +37,8 @@ namespace nsimpleeventstore
         private readonly Lock _lock;
         private readonly IEventRepository _repo;        
         
-        public Eventstore() : this(DEFAUL_PATH) {}
-        public Eventstore(string path) {
+        protected Eventstore() : this(DEFAUL_PATH) {}
+        protected Eventstore(string path) {
             _repo = (T)Activator.CreateInstance(typeof(T), path);
             _lock = new Lock();
         }
