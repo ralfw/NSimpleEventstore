@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.contract
 {
     public interface IEventstore : IDisposable
     {

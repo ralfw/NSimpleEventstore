@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using nsimpleeventstore.adapters.eventrepositories;
+using nsimpleeventstore.contract;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using nsimpleeventstore.adapters;
+using nsimpleeventstore.adapters.eventrepositories;
+using nsimpleeventstore.contract;
 
 namespace nsimpleeventstore
 {
@@ -25,45 +28,36 @@ namespace nsimpleeventstore
      * simplicity of the persistence approach it is assumed that failure during writing the events to files
      * is very unlikely.
      */
-    public class FilebasedEventstore : IEventstore
+    public abstract class Eventstore<T> : IEventstore where T : IEventRepository
     {
         private const string DEFAUL_PATH = "eventstore.db";
-
         
         public event Action<string, long, Event[]> OnRecorded = (v,f,e) => { };
 
-
         private readonly Lock _lock;
-        private readonly EventRepository _repo;
+        private readonly IEventRepository _repo;        
         
-        
-        public FilebasedEventstore() : this(DEFAUL_PATH) {}
-        public FilebasedEventstore(string path) {
-            _repo = new EventRepository(path);
+        protected Eventstore() : this(DEFAUL_PATH) {}
+        protected Eventstore(string path) {
+            _repo = (T)Activator.CreateInstance(typeof(T), path);
             _lock = new Lock();
         }
-
         
         public (string Version, long FinalEventNumber) Record(Event e, string expectedVersion="") => Record(new[] {e}, expectedVersion);
         public (string Version, long FinalEventNumber) Record(Event[] events, string expectedVersion="") {
             try
-            {
-                string currentVersion;
-                long n = 0;
-                
+            {                
                 _lock.TryWrite(() => {
-                    n = _repo.Count;
-                    currentVersion = n.ToString();
+                    var n = _repo.Count;
+                    var currentVersion = n.ToString();
 
                     Check_for_version_conflict(currentVersion);
                     Store_all_events(n);
                 });
 
-                n += events.Length;
-                currentVersion = n.ToString();
-                
-                OnRecorded(currentVersion, n-1, events);
-                return (currentVersion, n-1);
+                var (version, finalEventNumber) = State;
+                OnRecorded(version, finalEventNumber, events);
+                return (version, finalEventNumber);
             } finally{}
 
 
@@ -75,10 +69,9 @@ namespace nsimpleeventstore
             void Store_all_events(long index) => events.ToList().ForEach(e => _repo.Store(index++, e));
         }
 
-
-        public (string Version, Event[] Events) Replay(long firstEventNumber=-1) => Replay(firstEventNumber, new Type[0]);
+        public (string Version, Event[] Events) Replay(long firstEventNumber = -1) => Replay(firstEventNumber, new Type[0]);
         public (string Version, Event[] Events) Replay(params Type[] eventTypes) => Replay(-1, eventTypes);
-        public (string Version, Event[] Events) Replay(long firstEventNumber=-1, params Type[] eventTypes)
+        public (string Version, Event[] Events) Replay(long firstEventNumber, params Type[] eventTypes)
         {
             return _lock.TryRead(
                 () => (_repo.Count.ToString(),
@@ -98,17 +91,14 @@ namespace nsimpleeventstore
                 return events.Where(e => eventTypes_.Contains(e.GetType()));
             }
         }
-
-
+        
         public (string Version, long FinalEventNumber) State
             => _lock.TryRead(() =>  {
                 var n = _repo.Count;
                 return (n.ToString(), n - 1);
             });
 
-
-        public string Path => _repo.Path;
-        
+        public string Path => _repo.Path;        
         
         public void Dispose() { _repo.Dispose(); }
     }

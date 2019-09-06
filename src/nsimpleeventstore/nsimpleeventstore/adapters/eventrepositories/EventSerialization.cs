@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
 using Newtonsoft.Json;
+using nsimpleeventstore.contract;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.adapters.eventrepositories
 {
     /*
      * Serialization format:

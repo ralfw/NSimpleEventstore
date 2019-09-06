@@ -1,6 +1,6 @@
 using System;
 
-namespace nsimpleeventstore
+namespace nsimpleeventstore.contract
 {
     /*
      * All events to be stored in the event store have to be derived
