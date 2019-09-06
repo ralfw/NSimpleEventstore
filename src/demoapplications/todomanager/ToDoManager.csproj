@@ -36,8 +36,12 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nsimpleeventstore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\NSimpleEventStore.1.0.0\lib\netstandard2.0\nsimpleeventstore.dll</HintPath>
+    <Reference Include="nsimpleeventstore, Version=1.0.2.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\NSimpleEventStore.2.1.1\lib\netstandard2.0\nsimpleeventstore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nsimpleeventstore.contract, Version=1.0.2.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\NSimpleEventStore.Contract.2.1.0\lib\netstandard2.0\nsimpleeventstore.contract.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

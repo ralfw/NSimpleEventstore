@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using nsimpleeventstore;
+using nsimpleeventstore.contract;
 
 namespace todomanager
 {
@@ -9,7 +10,7 @@ namespace todomanager
     {
         public static void Main(string[] args)
         {
-            var es = new FilebasedEventstore();
+            var es = new FolderEventstore();
             var be = new Backend(es);
             var fe = new Frontend(be);
             

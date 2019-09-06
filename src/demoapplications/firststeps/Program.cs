@@ -1,14 +1,11 @@
 ﻿using System;
-using System.IO;
+using System.Linq;
 using nsimpleeventstore;
+using nsimpleeventstore.adapters;
+using nsimpleeventstore.contract;
 
 namespace firststeps
 {
-    class NumberEntered : Event
-    {
-        public int Number;
-    }
-
     class A : Event {}
     class B : Event {}
     class C : Event {}
@@ -25,7 +22,7 @@ namespace firststeps
             es.Record(new C());
             es.Record(new B());
 
-            EventArchive.Write("myarchive.json", es.Replay().Events);
+            nsimpleeventstore.adapters.EventArchive.Write("myarchive.json", es.Replay().Events);
 
             var events = EventArchive.Read("myarchive.json");
 
