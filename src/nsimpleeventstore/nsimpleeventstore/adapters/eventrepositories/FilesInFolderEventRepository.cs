@@ -11,11 +11,11 @@ namespace nsimpleeventstore.adapters.eventrepositories
      * Events are stored in files whose name consists of their array index as a hex number, e.g. 000000000002F303.txt
      * for the array element 193283.
      */
-    public class FileEventRepository : IEventRepository
+    public class FilesInFolderEventRepository : IEventRepository
     {
         private readonly string _path;
 
-        public FileEventRepository(string path) {
+        public FilesInFolderEventRepository(string path) {
             _path = path;
             if (Directory.Exists(_path) is false)
                 Directory.CreateDirectory(_path);

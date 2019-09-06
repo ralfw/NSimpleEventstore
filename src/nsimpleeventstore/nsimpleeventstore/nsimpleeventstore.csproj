@@ -8,13 +8,13 @@
 		<Version>1.0.2</Version>
 		<Authors>Ralf Westphal</Authors>
 		<Company>One Man Think Tank, Hamburg</Company>
-		<PackageVersion>2.0.0</PackageVersion>
+		<PackageVersion>2.1.0</PackageVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-      <PackageReference Include="NSimpleEventStore.Contract" Version="2.0.0" />
+      <PackageReference Include="NSimpleEventStore.Contract" Version="2.1.0" />
     </ItemGroup>
 
     <ItemGroup>
