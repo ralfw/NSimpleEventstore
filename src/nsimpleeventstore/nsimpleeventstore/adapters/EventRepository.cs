@@ -10,7 +10,7 @@ namespace nsimpleeventstore
      * Events are stored in files whose name consists of their array index as a hex number, e.g. 000000000002F303.txt
      * for the array element 193283.
      */
-    class EventRepository : IDisposable
+    public class EventRepository : IEventRepository
     {
         private readonly string _path;
 

@@ -15,4 +15,16 @@
       <PackageReference Include="NSimpleEventStore.Contract" Version="1.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Esent.Collections">
+        <HintPath>..\..\..\lib\Esent.Collections.dll</HintPath>
+      </Reference>
+      <Reference Include="Esent.Interop">
+        <HintPath>..\..\..\lib\Esent.Interop.dll</HintPath>
+      </Reference>
+      <Reference Include="Esent.Isam">
+        <HintPath>..\..\..\lib\Esent.Isam.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

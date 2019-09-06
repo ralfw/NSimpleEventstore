@@ -25,91 +25,9 @@ namespace nsimpleeventstore
      * simplicity of the persistence approach it is assumed that failure during writing the events to files
      * is very unlikely.
      */
-    public class FilebasedEventstore : IEventstore
+    public class FilebasedEventstore : Eventstore<EventRepository>
     {
-        private const string DEFAUL_PATH = "eventstore.db";
-
-        
-        public event Action<string, long, Event[]> OnRecorded = (v,f,e) => { };
-
-
-        private readonly Lock _lock;
-        private readonly EventRepository _repo;
-        
-        
-        public FilebasedEventstore() : this(DEFAUL_PATH) {}
-        public FilebasedEventstore(string path) {
-            _repo = new EventRepository(path);
-            _lock = new Lock();
-        }
-
-        
-        public (string Version, long FinalEventNumber) Record(Event e, string expectedVersion="") => Record(new[] {e}, expectedVersion);
-        public (string Version, long FinalEventNumber) Record(Event[] events, string expectedVersion="") {
-            try
-            {
-                string currentVersion;
-                long n = 0;
-                
-                _lock.TryWrite(() => {
-                    n = _repo.Count;
-                    currentVersion = n.ToString();
-
-                    Check_for_version_conflict(currentVersion);
-                    Store_all_events(n);
-                });
-
-                n += events.Length;
-                currentVersion = n.ToString();
-                
-                OnRecorded(currentVersion, n-1, events);
-                return (currentVersion, n-1);
-            } finally{}
-
-
-            void Check_for_version_conflict(string currentVersion) {
-                if (!string.IsNullOrEmpty(expectedVersion) && 
-                    expectedVersion != currentVersion) throw new VersionNotFoundException($"Event store version conflict! Version '{expectedVersion}' expected, but is '{currentVersion}'!");
-            }
-
-            void Store_all_events(long index) => events.ToList().ForEach(e => _repo.Store(index++, e));
-        }
-
-
-        public (string Version, Event[] Events) Replay(long firstEventNumber=-1) => Replay(firstEventNumber, new Type[0]);
-        public (string Version, Event[] Events) Replay(params Type[] eventTypes) => Replay(-1, eventTypes);
-        public (string Version, Event[] Events) Replay(long firstEventNumber=-1, params Type[] eventTypes)
-        {
-            return _lock.TryRead(
-                () => (_repo.Count.ToString(),
-                       Filter(AllEvents()).ToArray()));
-
-
-            IEnumerable<Event> AllEvents() {
-                var n = _repo.Count;
-                for (var i = firstEventNumber < 0 ? 0 : firstEventNumber; i < n; i++)
-                    yield return _repo.Load(i);
-            }
-
-            IEnumerable<Event> Filter(IEnumerable<Event> events) {
-                if (eventTypes.Length <= 0) return events;
-                
-                var eventTypes_ = new HashSet<Type>(eventTypes);
-                return events.Where(e => eventTypes_.Contains(e.GetType()));
-            }
-        }
-
-
-        public (string Version, long FinalEventNumber) State
-            => _lock.TryRead(() =>  {
-                var n = _repo.Count;
-                return (n.ToString(), n - 1);
-            });
-
-
-        public string Path => _repo.Path;
-        
-        
-        public void Dispose() { _repo.Dispose(); }
+        public FilebasedEventstore() : base() { }
+        public FilebasedEventstore(string path) : base(path) { }
     }
 }
