@@ -8,8 +8,9 @@
 		<Version>1.0.2</Version>
 		<Authors>Ralf Westphal</Authors>
 		<Company>One Man Think Tank, Hamburg</Company>
-		<PackageVersion>2.1.1</PackageVersion>
+		<PackageVersion>2.2.0</PackageVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<RepositoryUrl>https://github.com/ralfw/NSimpleEventstore</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
