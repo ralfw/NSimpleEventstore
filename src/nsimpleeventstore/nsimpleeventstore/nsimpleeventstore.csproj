@@ -14,20 +14,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.Database.Collections.Generic" Version="2.0.1" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
       <PackageReference Include="NSimpleEventStore.Contract" Version="2.1.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Esent.Collections">
-        <HintPath>..\..\..\lib\Esent.Collections.dll</HintPath>
-      </Reference>
-      <Reference Include="Esent.Interop">
-        <HintPath>..\..\..\lib\Esent.Interop.dll</HintPath>
-      </Reference>
-      <Reference Include="Esent.Isam">
-        <HintPath>..\..\..\lib\Esent.Isam.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>
