@@ -20,4 +20,8 @@
       <PackageReference Include="NSimpleEventStore.Contract" Version="2.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\nsimpleeventstore.contract\nsimpleeventstore.contract.csproj" />
+    </ItemGroup>
+
 </Project>

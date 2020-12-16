@@ -44,24 +44,20 @@ namespace nsimpleeventstore.tests
             var sut = new FolderEventstore(PATH);
 
             var state0 = sut.State;
-            Assert.True(state0.FinalEventNumber < 0);
+            Assert.True(state0 < 0);
 
             var result0 = sut.Record(new TestEvent());
-            Assert.NotEqual(state0.Version, result0.Version);
-            Assert.NotEqual(state0.FinalEventNumber, result0.FinalEventNumber);
-            Assert.Equal(0, result0.FinalEventNumber);
+            Assert.NotEqual(state0, result0);
+            Assert.Equal(0, result0);
             
             var result1 = sut.Record(new TestEvent());
-            Assert.NotEqual(result0.Version, result1.Version);
-            Assert.Equal(1, result1.FinalEventNumber);
+            Assert.Equal(1, result1);
             
             var result2 = sut.Record(new[]{new TestEvent(), new TestEvent()});
-            Assert.NotEqual(result1.Version, result2.Version);
-            Assert.Equal(3, result2.FinalEventNumber);
+            Assert.Equal(3, result2);
 
             var state99 = sut.State;
-            Assert.Equal(state99.Version, result2.Version);
-            Assert.Equal(state99.FinalEventNumber, result2.FinalEventNumber);
+            Assert.Equal(state99, result2);
         }
         
         
@@ -72,24 +68,20 @@ namespace nsimpleeventstore.tests
             if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
             var sut = new FolderEventstore(PATH);
 
-            (string Version, long FinalEventNumber, Event[] Events) result = ("", -1, null);
-            sut.OnRecorded += (v,f,e) => result = (v,f,e);
+            (long FinalEventNumber, Event[] Events) result = (-1, null);
+            sut.OnRecorded += (f,e) => result = (f,e);
             var state0 = sut.State;
 
             sut.Record(new TestEvent{Foo = "a"});
-            Assert.NotEqual(state0.Version, result.Version);
             Assert.Equal(0, result.FinalEventNumber);
             Assert.Single(result.Events);
 
-            var version1 = result.Version;
             sut.Record(new[]{new TestEvent{Foo = "b"}, new TestEvent{Foo = "c"}});
-            Assert.NotEqual(version1, result.Version);
             Assert.Equal(2, result.FinalEventNumber);
             Assert.Equal(new[]{"b", "c"}, result.Events.Select(e => ((TestEvent)e).Foo).ToArray());
             
             var state99 = sut.State;
-            Assert.Equal(state99.Version, result.Version);
-            Assert.Equal(state99.FinalEventNumber, result.FinalEventNumber);
+            Assert.Equal(state99, result.FinalEventNumber);
         }
         
         
@@ -108,15 +100,15 @@ namespace nsimpleeventstore.tests
             var state5 = sut.State;
 
             var result = sut.Replay();
-            Assert.Equal(state5.Version, result.Version);
+            Assert.Equal(state5, result.FinalEventNumber);
             Assert.Equal(5, result.Events.Length);
 
             result = sut.Replay(typeof(TestEvent));
-            Assert.Equal(state5.Version, result.Version);
+            Assert.Equal(state5, result.FinalEventNumber);
             Assert.Equal(new[]{"a", "b"}, result.Events.Select(e => ((TestEvent)e).Foo).ToArray());
             
             result = sut.Replay(typeof(AnotherTestEvent));
-            Assert.Equal(state5.Version, result.Version);
+            Assert.Equal(state5, result.FinalEventNumber);
             Assert.Equal(new[]{1, 2, 3}, result.Events.Select(e => ((AnotherTestEvent)e).Bar).ToArray());
         }
         
@@ -175,10 +167,10 @@ namespace nsimpleeventstore.tests
             var state0 = sut.State;
             var result = sut.Record(new TestEvent{Foo = "a"});
             
-            Assert.NotEqual(state0.Version,  result.Version);
-            var result2 = sut.Record(new AnotherTestEvent {Bar = 1}, result.Version);
+            Assert.NotEqual(state0,  result);
+            var result2 = sut.Record(new AnotherTestEvent {Bar = 1}, result + 1);
 
-            Assert.NotEqual(result.Version, result2.Version);
+            Assert.NotEqual(result, result2);
         }
         
         [Fact]
@@ -190,9 +182,9 @@ namespace nsimpleeventstore.tests
 
             var state0 = sut.State;
             var result = sut.Record(new TestEvent{Foo = "a"});
-            Assert.NotEqual(state0.Version,  result.Version);
+            Assert.NotEqual(state0,  result);
             
-            Assert.Throws<VersionNotFoundException>(() =>  sut.Record(new AnotherTestEvent {Bar = 1}, state0.Version));
+            Assert.Throws<VersionNotFoundException>(() =>  sut.Record(new AnotherTestEvent {Bar = 1}, result));
         }
         
         [Fact]
