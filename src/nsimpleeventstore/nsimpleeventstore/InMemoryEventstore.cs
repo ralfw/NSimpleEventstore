@@ -11,7 +11,7 @@ namespace nsimpleeventstore
     {
         public InMemoryEventstore() : this(new Event[0]) {}
         public InMemoryEventstore(IEnumerable<Event> events) : base("") {
-            this.Record(events.ToArray(), "");
+            this.Record(events.ToArray());
         }
     }
 }
