@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 namespace nsimpleeventstore.contract
 {
     public interface IEventstore : IDisposable
     {
+        /*
         event Action<long, Event[]> OnRecorded;
         
         long Record(Event e, long expectedEventNumber = -1);
@@ -14,5 +16,11 @@ namespace nsimpleeventstore.contract
         (long FinalEventNumber, Event[] Events) Replay(long firstEventNumber, params Type[] eventTypes);
         
         long State { get; }
+        */
+
+        event Action<IEvent[]> OnRecorded;
+        EventId LastEventId { get; } //returns the last recorded Event.Id
+        IEnumerable<IEvent> Replay(EventId startEventId = null);
+        void Record(EventId expectedLastEventId, params IEvent[] events);
     }
 }

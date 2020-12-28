@@ -19,14 +19,14 @@ namespace nsimpleeventstore.adapters
      */
     public static class EventArchive
     {
-        public static void Write(string filename, IEnumerable<Event> events)  {
+        public static void Write(string filename, IEnumerable<IEvent> events)  {
             var serializedEvents = events.Select(EventSerialization.Serialize).ToList();
             var jsonEvents = JsonConvert.SerializeObject(serializedEvents);
             File.WriteAllText(filename, jsonEvents);
         }
 
         
-        public static IEnumerable<Event> Read(string filename)  {
+        public static IEnumerable<IEvent> Read(string filename)  {
             var jsonEvents = File.ReadAllText(filename);
             var serializedEvents = JsonConvert.DeserializeObject<List<string>>(jsonEvents);
             return serializedEvents.Select(EventSerialization.Deserialize);

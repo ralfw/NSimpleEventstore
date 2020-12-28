@@ -28,26 +28,30 @@ namespace nsimpleeventstore
      * simplicity of the persistence approach it is assumed that failure during writing the events to files
      * is very unlikely.
      */
-    public abstract class Eventstore<T> : IEventstore where T : IEventRepository
+    public class Eventstore<T> : IEventstore where T : IEventRepository
     {
         private const string DEFAUL_PATH = "eventstore.db";
-        
-        public event Action<long, Event[]> OnRecorded = (f,e) => { };
+
+        public event Action<IEvent[]> OnRecorded = (e) => { };
 
         private readonly Lock _lock;
-        private readonly IEventRepository _repo;        
-        
-        protected Eventstore() : this(DEFAUL_PATH) {}
-        protected Eventstore(string path) {
+        private readonly IEventRepository _repo;
+
+        public Eventstore() : this(DEFAUL_PATH) { }
+        public Eventstore(string path)
+        {
             _repo = (T)Activator.CreateInstance(typeof(T), path);
             _lock = new Lock();
         }
-        
-        public long Record(Event e, long expectedEventNumber = -1) => Record(new[] {e}, expectedEventNumber);
-        public long Record(Event[] events, long expectedEventNumber = -1) {
+
+        /*
+        public long Record(Event e, long expectedEventNumber = -1) => Record(new[] { e }, expectedEventNumber);
+        public long Record(Event[] events, long expectedEventNumber = -1)
+        {
             try
-            {                
-                _lock.TryWrite(() => {
+            {
+                _lock.TryWrite(() =>
+                {
                     var nextEventNumber = _repo.Count;
                     Check_for_version_conflict(nextEventNumber);
                     Store_all_events(nextEventNumber);
@@ -56,10 +60,12 @@ namespace nsimpleeventstore
                 var finalEventNumber = State;
                 OnRecorded(finalEventNumber, events);
                 return finalEventNumber;
-            } finally{}
+            }
+            finally { }
 
 
-            void Check_for_version_conflict(long nextEventNumber) {
+            void Check_for_version_conflict(long nextEventNumber)
+            {
                 if (expectedEventNumber >= 0 &&
                     expectedEventNumber != nextEventNumber) throw new VersionNotFoundException($"Event store version conflict! Version '{expectedEventNumber}' expected, but is '{nextEventNumber}'!");
             }
@@ -76,27 +82,82 @@ namespace nsimpleeventstore
                        Filter(AllEvents()).ToArray()));
 
 
-            IEnumerable<Event> AllEvents() {
+            IEnumerable<Event> AllEvents()
+            {
                 var n = _repo.Count;
                 for (var i = firstEventNumber < 0 ? 0 : firstEventNumber; i < n; i++)
                     yield return _repo.Load(i);
             }
 
-            IEnumerable<Event> Filter(IEnumerable<Event> events) {
+            IEnumerable<Event> Filter(IEnumerable<Event> events)
+            {
                 if (eventTypes.Length <= 0) return events;
-                
+
                 var eventTypes_ = new HashSet<Type>(eventTypes);
                 return events.Where(e => eventTypes_.Contains(e.GetType()));
             }
         }
-        
+
         public long State
-            => _lock.TryRead(() =>  {
+            => _lock.TryRead(() =>
+            {
                 return _repo.Count - 1;
             });
+        */
 
-        public string Path => _repo.Path;        
-        
+        public string Path => _repo.Path;
+
+        public EventId LastEventId
+        {
+            get 
+            {
+                var lastIndex = _repo.Count - 1;
+                if (lastIndex >= 0) return _repo.Load(lastIndex).Id;
+                return null; 
+            }
+        }
+
         public void Dispose() { _repo.Dispose(); }
+       
+        public IEnumerable<IEvent> Replay(EventId startEventId = null)
+        {
+            return _lock.TryRead(() => (Filter(AllEvents())));
+
+            IEnumerable<IEvent> AllEvents()
+            {
+                var n = _repo.Count;
+                for (var i = 0; i < n; i++)
+                    yield return _repo.Load(i);
+            }
+
+            IEnumerable<IEvent> Filter(IEnumerable<IEvent> events)
+            {
+                if (startEventId == null) return events;
+                return events.SkipWhile(x => x.Id.Equals(startEventId) is false);
+            }
+        }        
+
+        public void Record(EventId expectedLastEventId, params IEvent[] events)
+        {
+            try
+            {
+                _lock.TryWrite(() =>
+                {
+                    var nextEventNumber = _repo.Count;
+                    Check_for_version_conflict(expectedLastEventId);
+                    Store_all_events(nextEventNumber);
+                });
+                
+                OnRecorded(events);                
+            }
+            finally { }
+
+            void Check_for_version_conflict(EventId expectedLastEventId)
+            {
+                if (expectedLastEventId != null && expectedLastEventId.Equals(LastEventId) is false) throw new VersionNotFoundException($"Event store version conflict! Version '{expectedLastEventId}' expected, but is '{LastEventId}'!");
+            }
+
+            void Store_all_events(long index) => events.ToList().ForEach(e => _repo.Store(index++, e));
+        }
     }
 }

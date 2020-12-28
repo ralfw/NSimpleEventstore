@@ -9,9 +9,12 @@ namespace nsimpleeventstore.tests
 {
     public class LiteDBEventRepository_tests
     {
-        class TestEvent : Event
+        class TestEvent : IEvent
         {
             public string Foo;
+
+            public TestEvent() { Id = new EventId(); }
+            public EventId Id { get; set; }
         }
 
         [Fact]

@@ -9,9 +9,12 @@ namespace nsimpleeventstore.tests
 {
     public class EventSerialization_tests
     {
-        class TestEvent : Event
+        class TestEvent : IEvent
         {
             public string Foo;
+
+            public TestEvent() { Id = new EventId(); }
+            public EventId Id { get; set; }
         }
         
         
@@ -28,7 +31,7 @@ namespace nsimpleeventstore.tests
             var result = EventSerialization.Serialize(e).Split('\n');
             
             Assert.StartsWith("nsimpleeventstore.tests.EventSerialization_tests+TestEvent", result[0]);
-            Assert.StartsWith("{\"Foo\":\"Hello!\",\"Id\":\"", result[1]);
+            Assert.StartsWith("{\"Foo\":\"Hello!\",\"Id\":", result[1]);
         }
 
         

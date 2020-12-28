@@ -10,9 +10,12 @@ namespace nsimpleeventstore.tests
 {
     public class EventSerialization_scenario_tests
     {
-        public class MyEvent : Event
+        public class MyEvent : IEvent
         {
             public AbstractClass Item { get; set; }
+
+            public MyEvent() { Id = new EventId(); }
+            public EventId Id { get; set; }
         }
 
         public class AbstractClass { }

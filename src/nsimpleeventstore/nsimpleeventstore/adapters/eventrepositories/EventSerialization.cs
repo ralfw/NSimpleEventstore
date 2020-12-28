@@ -17,7 +17,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
     {
         public static JsonSerializerSettings JsonSerializerSettings { get; set; } = default;
 
-        public static string Serialize(Event e) {
+        public static string Serialize(IEvent e) {
             var eventName = e.GetType().AssemblyQualifiedName;
             var data = JsonSerializerSettings == null
                 ? JsonConvert.SerializeObject(e)
@@ -26,13 +26,13 @@ namespace nsimpleeventstore.adapters.eventrepositories
             return string.Join("\n", parts);
         }
 
-        public static Event Deserialize(string e) {
+        public static IEvent Deserialize(string e) {
             var lines = e.Split('\n');
             var eventName = lines.First();
             var data = string.Join("\n", lines.Skip(1));
             return JsonSerializerSettings == null
-                ? (Event)JsonConvert.DeserializeObject(data, Type.GetType(eventName))
-                : (Event)JsonConvert.DeserializeObject(data, Type.GetType(eventName), JsonSerializerSettings);
+                ? (IEvent)JsonConvert.DeserializeObject(data, Type.GetType(eventName))
+                : (IEvent)JsonConvert.DeserializeObject(data, Type.GetType(eventName), JsonSerializerSettings);
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using nsimpleeventstore.adapters.eventrepositories;
 using nsimpleeventstore.contract;
 using Xunit;
 
@@ -11,77 +12,36 @@ namespace nsimpleeventstore.tests
         /*
          * Store a couple of events revolving around task management.
          * Afterwards build a context model from the events.
-         */
-        [Fact]
-        public void FilebasedEventstore_acceptance_test() {
-            const string PATH =  nameof(Eventstore_scenario_tests) + "_" + nameof(FilebasedEventstore_acceptance_test);
-            if (Directory.Exists(PATH)) Directory.Delete(PATH, true);
-            using (var sut = new FolderEventstore(PATH))
-            {
-                Event e0 = new TodoAdded("do dishes");
-                sut.Record(e0);
-                sut.Record(new TodoAdded("walk dog"));
-
-                Event e2 = new TodoAdded("write report");
-                sut.Record(new Event[] {e2, new TodoCategorized(e2.Id, "work")});
-                sut.Record(new TodoDone(e0.Id));
-
-                var result = sut.Replay();
-                var todos = result.Events.Aggregate(new Dictionary<string, ToDoItem>(), Map);
-
-                Assert.Equal(2, todos.Count);
-                Assert.Equal("write report", todos[e2.Id].Subject);
-                Assert.Contains("work", todos[e2.Id].Categories);
-
-
-                Dictionary<string, ToDoItem> Map(Dictionary<string, ToDoItem> items, Event e)
-                {
-                    switch (e)
-                    {
-                        case TodoAdded a:
-                            items[a.Id] = new ToDoItem {Id = a.Id, Subject = a.Subject};
-                            break;
-                        case TodoDone d:
-                            items.Remove(d.EntityId);
-                            break;
-                        case TodoCategorized c:
-                            foreach (var cat in c.Categories)
-                                items[c.EntityId].Categories.Add(cat);
-                            break;
-                    }
-
-                    return items;
-                }
-            }
-        }
-        
-        
+         */        
         [Fact]
         public void InMemoryEventstore_acceptance_test() {
-            using (var sut = new InMemoryEventstore())
+            using (var sut = new Eventstore<InMemoryEventRepository>())
             {
-                Event e0 = new TodoAdded("do dishes");
-                sut.Record(e0);
-                sut.Record(new TodoAdded("walk dog"));
+                IEvent e0 = new TodoAdded("do dishes");
+                sut.Record(null, e0);
+                IEvent e1 = new TodoAdded("walk dog");
+                sut.Record(e0.Id, e1);
 
-                Event e2 = new TodoAdded("write report");
-                sut.Record(new Event[] {e2, new TodoCategorized(e2.Id, "work")});
-                sut.Record(new TodoDone(e0.Id));
+                IEvent e2 = new TodoAdded("write report");
+                IEvent e3 = new TodoCategorized(e2.Id.ToString(), "work");
+                sut.Record(e1.Id, new IEvent[] {e2, e3});
+                IEvent e4 = new TodoDone(e0.Id.ToString());
+                sut.Record(e3.Id, e4);
 
                 var result = sut.Replay();
-                var todos = result.Events.Aggregate(new Dictionary<string, ToDoItem>(), Map);
+                var todos = result.Aggregate(new Dictionary<string, ToDoItem>(), Map);
 
                 Assert.Equal(2, todos.Count);
-                Assert.Equal("write report", todos[e2.Id].Subject);
-                Assert.Contains("work", todos[e2.Id].Categories);
+                Assert.Equal("write report", todos[e2.Id.ToString()].Subject);
+                Assert.Contains("work", todos[e2.Id.ToString()].Categories);
 
 
-                Dictionary<string, ToDoItem> Map(Dictionary<string, ToDoItem> items, Event e)
+                Dictionary<string, ToDoItem> Map(Dictionary<string, ToDoItem> items, IEvent e)
                 {
                     switch (e)
                     {
                         case TodoAdded a:
-                            items[a.Id] = new ToDoItem {Id = a.Id, Subject = a.Subject};
+                            items[a.Id.ToString()] = new ToDoItem {Id = a.Id.ToString(), Subject = a.Subject};
                             break;
                         case TodoDone d:
                             items.Remove(d.EntityId);
@@ -98,27 +58,33 @@ namespace nsimpleeventstore.tests
         }
         
         
-        class TodoAdded : Event
+        class TodoAdded : IEvent
         {
             public string Subject { get; }
 
             public TodoAdded(string subject)
             {
                 Subject = subject;
+                Id = new EventId();
             }
+
+            public EventId Id { get; set; }
         }
 
-        class TodoDone : Event
+        class TodoDone : IEvent
         {
             public string EntityId { get; }
 
             public TodoDone(string entityId)
             {
                 EntityId = entityId;
+                Id = new EventId();
             }
+
+            public EventId Id { get; set; }
         }
         
-        class TodoCategorized : Event
+        class TodoCategorized : IEvent
         {
             public string EntityId { get; }
             public string[] Categories { get; }
@@ -126,7 +92,10 @@ namespace nsimpleeventstore.tests
             public TodoCategorized(string entityId, params string[] categories) {
                 EntityId = entityId;
                 Categories = categories ?? new string[0];
+                Id = new EventId();
             }
+
+            public EventId Id { get; set; }
         }
         
         class ToDoItem
