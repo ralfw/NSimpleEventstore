@@ -44,67 +44,6 @@ namespace nsimpleeventstore
             _lock = new Lock();
         }
 
-        /*
-        public long Record(Event e, long expectedEventNumber = -1) => Record(new[] { e }, expectedEventNumber);
-        public long Record(Event[] events, long expectedEventNumber = -1)
-        {
-            try
-            {
-                _lock.TryWrite(() =>
-                {
-                    var nextEventNumber = _repo.Count;
-                    Check_for_version_conflict(nextEventNumber);
-                    Store_all_events(nextEventNumber);
-                });
-
-                var finalEventNumber = State;
-                OnRecorded(finalEventNumber, events);
-                return finalEventNumber;
-            }
-            finally { }
-
-
-            void Check_for_version_conflict(long nextEventNumber)
-            {
-                if (expectedEventNumber >= 0 &&
-                    expectedEventNumber != nextEventNumber) throw new VersionNotFoundException($"Event store version conflict! Version '{expectedEventNumber}' expected, but is '{nextEventNumber}'!");
-            }
-
-            void Store_all_events(long index) => events.ToList().ForEach(e => _repo.Store(index++, e));
-        }
-
-        public (long FinalEventNumber, Event[] Events) Replay(long firstEventNumber = -1) => Replay(firstEventNumber, new Type[0]);
-        public (long FinalEventNumber, Event[] Events) Replay(params Type[] eventTypes) => Replay(-1, eventTypes);
-        public (long FinalEventNumber, Event[] Events) Replay(long firstEventNumber, params Type[] eventTypes)
-        {
-            return _lock.TryRead(
-                () => (_repo.Count - 1,
-                       Filter(AllEvents()).ToArray()));
-
-
-            IEnumerable<Event> AllEvents()
-            {
-                var n = _repo.Count;
-                for (var i = firstEventNumber < 0 ? 0 : firstEventNumber; i < n; i++)
-                    yield return _repo.Load(i);
-            }
-
-            IEnumerable<Event> Filter(IEnumerable<Event> events)
-            {
-                if (eventTypes.Length <= 0) return events;
-
-                var eventTypes_ = new HashSet<Type>(eventTypes);
-                return events.Where(e => eventTypes_.Contains(e.GetType()));
-            }
-        }
-
-        public long State
-            => _lock.TryRead(() =>
-            {
-                return _repo.Count - 1;
-            });
-        */
-
         public string Path => _repo.Path;
 
         public EventId LastEventId
@@ -118,8 +57,10 @@ namespace nsimpleeventstore
         }
 
         public void Dispose() { _repo.Dispose(); }
-       
-        public IEnumerable<IEvent> Replay(EventId startEventId = null)
+
+        public IEnumerable<IEvent> Replay() => Replay(null);
+
+        public IEnumerable<IEvent> Replay(EventId startEventId)
         {
             return _lock.TryRead(() => (Filter(AllEvents())));
 

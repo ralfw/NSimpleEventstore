@@ -8,20 +8,14 @@ namespace nsimpleeventstore.tests
 {
     public class EventArchive_tests
     {
-        class TestEvent : IEvent
+        class TestEvent : Event
         {
             public string Foo;
-
-            public TestEvent() { Id = new EventId(); }
-            public EventId Id { get; set; }
         }
 
-        class AnotherTestEvent : IEvent
+        class AnotherTestEvent : Event
         {
             public int Bar;
-
-            public AnotherTestEvent() { Id = new EventId(); }
-            public EventId Id { get; set; }
         }
         
         

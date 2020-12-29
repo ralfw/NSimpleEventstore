@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using nsimpleeventstore.adapters.eventrepositories;
 using nsimpleeventstore.contract;
@@ -58,33 +57,27 @@ namespace nsimpleeventstore.tests
         }
         
         
-        class TodoAdded : IEvent
+        class TodoAdded : Event
         {
             public string Subject { get; }
 
             public TodoAdded(string subject)
             {
                 Subject = subject;
-                Id = new EventId();
             }
-
-            public EventId Id { get; set; }
         }
 
-        class TodoDone : IEvent
+        class TodoDone : Event
         {
             public string EntityId { get; }
 
             public TodoDone(string entityId)
             {
                 EntityId = entityId;
-                Id = new EventId();
             }
-
-            public EventId Id { get; set; }
         }
         
-        class TodoCategorized : IEvent
+        class TodoCategorized : Event
         {
             public string EntityId { get; }
             public string[] Categories { get; }
@@ -92,10 +85,7 @@ namespace nsimpleeventstore.tests
             public TodoCategorized(string entityId, params string[] categories) {
                 EntityId = entityId;
                 Categories = categories ?? new string[0];
-                Id = new EventId();
             }
-
-            public EventId Id { get; set; }
         }
         
         class ToDoItem

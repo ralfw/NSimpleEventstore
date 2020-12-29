@@ -9,12 +9,9 @@ namespace nsimpleeventstore.tests
 {
     public class EsentEventRepository_tests
     {
-        class TestEvent : IEvent
+        class TestEvent : Event
         {
             public string Foo;
-
-            public TestEvent() { Id = new EventId(); }
-            public EventId Id { get; set; }
         }
         
         

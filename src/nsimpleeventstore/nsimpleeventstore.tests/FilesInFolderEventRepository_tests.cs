@@ -8,12 +8,9 @@ namespace nsimpleeventstore.tests
 {
     public class FilesInFolderEventRepository_tests
     {
-        class TestEvent : IEvent
+        class TestEvent : Event
         {
             public string Foo;
-
-            public TestEvent() { Id = new EventId(); }
-            public EventId Id { get; set; }
         }
         
         
