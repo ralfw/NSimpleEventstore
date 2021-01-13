@@ -36,6 +36,7 @@ namespace nsimpleeventstore
 
         private readonly Lock _lock;
         private readonly IEventRepository _repo;
+        
 
         public Eventstore() : this(DEFAUL_PATH) { }
         public Eventstore(string path)
@@ -64,17 +65,17 @@ namespace nsimpleeventstore
         {
             return _lock.TryRead(() => (Filter(AllEvents())));
 
+            IEnumerable<IEvent> Filter(IEnumerable<IEvent> events)
+            {
+                if (startEventId == null) return events;
+                return events.SkipWhile(x => x.Id.Equals(startEventId) is false);
+            }
+
             IEnumerable<IEvent> AllEvents()
             {
                 var n = _repo.Count;
                 for (var i = 0; i < n; i++)
                     yield return _repo.Load(i);
-            }
-
-            IEnumerable<IEvent> Filter(IEnumerable<IEvent> events)
-            {
-                if (startEventId == null) return events;
-                return events.SkipWhile(x => x.Id.Equals(startEventId) is false);
             }
         }        
 
@@ -95,10 +96,11 @@ namespace nsimpleeventstore
 
             void Check_for_version_conflict(EventId expectedLastEventId)
             {
-                if (expectedLastEventId != null && expectedLastEventId.Equals(LastEventId) is false) throw new VersionNotFoundException($"Event store version conflict! Version '{expectedLastEventId}' expected, but is '{LastEventId}'!");
+                if (expectedLastEventId != null && expectedLastEventId.Equals(LastEventId) is false) 
+                    throw new VersionNotFoundException($"Event store version conflict! Version '{expectedLastEventId}' expected, but is '{LastEventId}'!");
             }
 
-            void Store_all_events(long index) => events.ToList().ForEach(e => _repo.Store(index++, e));
+            void Store_all_events(long eventNumber) => events.ToList().ForEach(e => _repo.Store(eventNumber++, e));
         }
     }
 }
