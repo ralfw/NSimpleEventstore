@@ -22,7 +22,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
         }
         
         
-        public void Store(long index, Event e) {
+        public void Store(long index, IEvent e) {
             var text = EventSerialization.Serialize(e);
             Store(index, text);
         }
@@ -37,7 +37,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
         }
 
         
-        public Event Load(long index) {
+        public IEvent Load(long index) {
             var text = File.ReadAllText(FilepathFor(index));
             return EventSerialization.Deserialize(text);
         }

@@ -7,8 +7,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
     {
         long Count { get; }
         string Path { get; }
-
-        Event Load(long index);
-        void Store(long index, Event e);
+        IEvent Load(long index);
+        void Store(long index, IEvent e);
     }
 }

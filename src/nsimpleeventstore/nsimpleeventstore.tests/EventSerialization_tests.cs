@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using nsimpleeventstore.adapters.eventrepositories;
 using nsimpleeventstore.contract;
 using Xunit;
@@ -12,13 +10,11 @@ namespace nsimpleeventstore.tests
         class TestEvent : Event
         {
             public string Foo;
-        }
-        
+        }        
         
         private readonly ITestOutputHelper _output;
 
-        public EventSerialization_tests(ITestOutputHelper output) { _output = output; }
-        
+        public EventSerialization_tests(ITestOutputHelper output) { _output = output; }        
         
         [Fact]
         public void Serialize()
@@ -28,10 +24,9 @@ namespace nsimpleeventstore.tests
             var result = EventSerialization.Serialize(e).Split('\n');
             
             Assert.StartsWith("nsimpleeventstore.tests.EventSerialization_tests+TestEvent", result[0]);
-            Assert.StartsWith("{\"Foo\":\"Hello!\",\"Id\":\"", result[1]);
+            Assert.StartsWith("{\"Foo\":\"Hello!\",\"Id\":", result[1]);
         }
-
-        
+                
         [Fact]
         public void Deserialize()
         {

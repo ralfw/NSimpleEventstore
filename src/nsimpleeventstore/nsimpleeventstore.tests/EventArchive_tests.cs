@@ -25,7 +25,7 @@ namespace nsimpleeventstore.tests
             const string FILENAME = nameof(EventArchive_tests) + "_" + nameof(Store_and_load) + ".json";
             if (File.Exists(FILENAME)) File.Delete(FILENAME);
             
-            var events = new Event[] {
+            var events = new IEvent[] {
                 new TestEvent{Foo = "a"},
                 new AnotherTestEvent{Bar = 1},
                 new TestEvent{Foo = "b"}

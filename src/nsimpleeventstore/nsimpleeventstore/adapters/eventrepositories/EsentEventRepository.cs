@@ -19,7 +19,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
         }        
         
         
-        public void Store(long index, Event e) {
+        public void Store(long index, IEvent e) {
             var text = EventSerialization.Serialize(e);
             Store(index, text);
         }
@@ -32,7 +32,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
         }
         
         
-        public Event Load(long index) {
+        public IEvent Load(long index) {
             if (index < 0) throw new InvalidOperationException("Event index must be >= 0!");
             if (_directory.ContainsKey(index) is false) throw new InvalidOperationException($"Event with index {index} was not stored!");
             

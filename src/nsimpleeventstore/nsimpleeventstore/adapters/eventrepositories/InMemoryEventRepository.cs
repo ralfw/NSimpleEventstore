@@ -10,20 +10,20 @@ namespace nsimpleeventstore.adapters.eventrepositories
      */
     public class InMemoryEventRepository : IEventRepository
     {
-        private readonly Dictionary<long, Event> _directory = new Dictionary<long, Event>();
+        private readonly Dictionary<long, IEvent> _directory = new Dictionary<long, IEvent>();
         
         public InMemoryEventRepository(string path) {
             Path = path; //not used
         }
 
-        public void Store(long index, Event e) {
+        public void Store(long index, IEvent e) {
             if (index < 0) throw new InvalidOperationException("Event index must be >= 0!");
             if (_directory.ContainsKey(index)) throw new InvalidOperationException($"Event with index {index} has already been stored and cannot be overwritten!");
             
             _directory.Add(index, e);
         }
 
-        public Event Load(long index) {
+        public IEvent Load(long index) {
             if (index < 0) throw new InvalidOperationException("Event index must be >= 0!");
             if (_directory.ContainsKey(index) is false) throw new InvalidOperationException($"Event with index {index} was not stored!");
 

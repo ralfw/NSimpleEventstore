@@ -23,7 +23,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
             _directory.EnsureIndex(x => x.Id, true);
         }
 
-        public Event Load(long index)
+        public IEvent Load(long index)
         {
             if (index < 0) throw new InvalidOperationException("Event index must be >= 0!");
             var doc = _directory.FindOne(x => x.Id.Equals(index));
@@ -32,7 +32,7 @@ namespace nsimpleeventstore.adapters.eventrepositories
             return EventSerialization.Deserialize(doc.Text);
         }
 
-        public void Store(long index, Event e)
+        public void Store(long index, IEvent e)
         {
             var text = EventSerialization.Serialize(e);
             Store(index, text);
