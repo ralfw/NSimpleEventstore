@@ -2,6 +2,7 @@
 using System.Linq;
 using nsimpleeventstore;
 using nsimpleeventstore.adapters;
+using nsimpleeventstore.adapters.eventrepositories;
 using nsimpleeventstore.contract;
 
 namespace firststeps
@@ -16,18 +17,27 @@ namespace firststeps
     {
         public static void Main(string[] args)
         {
-            var es = new InMemoryEventstore();
+            var es = new Eventstore<InMemoryEventRepository>();
+            var a = new A();
+            var b = new B();
+            var c = new C();
+            es.Record(null, a);
+            es.Record(a.Id, c);
+            es.Record(c.Id, b);
 
-            es.Record(new A());
-            es.Record(new C());
-            es.Record(new B());
-
-            nsimpleeventstore.adapters.EventArchive.Write("myarchive.json", es.Replay().Events);
+            EventArchive.Write("myarchive.json", es.Replay());
 
             var events = EventArchive.Read("myarchive.json");
 
-            var es2 = new InMemoryEventstore(events);
-            Console.WriteLine(es2.Replay().Events.Length);
+            var es2 = new Eventstore<InMemoryEventRepository>();
+            EventId id = null;
+            events.ToList().ForEach(delegate (IEvent e)
+            {
+                es2.Record(id, e);
+                id = e.Id;                
+            });
+
+            Console.WriteLine(es2.Replay().ToList().Count);
         }
     }
 }

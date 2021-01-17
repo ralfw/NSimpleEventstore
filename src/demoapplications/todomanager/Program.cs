@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using nsimpleeventstore;
 using nsimpleeventstore.contract;
+using nsimpleeventstore.adapters.eventrepositories;
 
 namespace todomanager
 {
@@ -10,7 +11,7 @@ namespace todomanager
     {
         public static void Main(string[] args)
         {
-            var es = new FolderEventstore();
+            var es = new Eventstore<FilesInFolderEventRepository>();
             var be = new Backend(es);
             var fe = new Frontend(be);
             
@@ -86,17 +87,17 @@ namespace todomanager
             _es = es;
         }
 
-        public string Handle(CreateToDo cmd)
+        public EventId Handle(CreateToDo cmd)
         {
             var e = new ToDoCreated{Subject = cmd.Subject};
-            _es.Record(e);
+            _es.Record(null, e); //expectedLastEventId can be null because this is a single user and single thread app
             return e.Id;
         }
 
         public void Handle(CheckOffToDo cmd)
         {
             var e = new ToDoDone{ToDoId = cmd.ToDoId};
-            _es.Record(e);
+            _es.Record(null, e);
         }
 
         public ToDosQueryResult Handle(ToDosQuery query)
@@ -106,11 +107,11 @@ namespace todomanager
 
             IEnumerable<(string EntityId, string Subject, bool Done)> Load() {
                 var entities = new Dictionary<string,(string Subject, bool Done)>();
-                foreach(var e in _es.Replay().Events)
+                foreach(var e in _es.Replay())
                     switch (e)
                     {
                         case ToDoCreated tdc:
-                            entities[tdc.Id] = (tdc.Subject, false);
+                            entities[tdc.Id.Value.ToString()] = (tdc.Subject, false);
                             break;
                         case ToDoDone tdd:
                             entities[tdd.ToDoId] = (entities[tdd.ToDoId].Subject, true);
